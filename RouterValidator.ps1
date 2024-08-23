@@ -31,8 +31,6 @@ if ($ipAddress -notmatch $ipV4)
     exit
 }
 
-$ipAddress = "amit.ddemcak.com"
-
 # HTTP request to get router data
 $Uri = "http://$($ipAddress)/modemcgi"
 
@@ -107,8 +105,3 @@ else { Write-Host -NoNewLine ''($manifestVersion + '  [ERR]').PadRight($padding)
 
 Write-Host '   | ' -ForegroundColor DarkCyan
 Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkCyan
-
-
-
-
-
