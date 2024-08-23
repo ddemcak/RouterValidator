@@ -1,30 +1,20 @@
-Write-Host '--------------------------------------------' -ForegroundColor Yellow
-Write-Host '    Wi-Fi router Validation script v1.00    ' -ForegroundColor Yellow
-Write-Host '--------------------------------------------' -ForegroundColor Yellow
-Write-Host '--------------------------------------------' -ForegroundColor DarkGray
-Write-Host '    Info: 23.08.2024, David Demcak          ' -ForegroundColor DarkGray
-Write-Host '    Changelog:                              ' -ForegroundColor DarkGray
-Write-Host '         v1.00 - Frist version              ' -ForegroundColor DarkGray
-Write-Host '--------------------------------------------' -ForegroundColor DarkGray
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor Yellow
+Write-Host '                    Wi-Fi/LRE router Validation script v1.00                             ' -ForegroundColor Yellow
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor Yellow
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkGray
+Write-Host '    Info: 23.08.2024, David Demcak                                                       ' -ForegroundColor DarkGray
+Write-Host '    Changelog:                                                                           ' -ForegroundColor DarkGray
+Write-Host '         v1.00 - Frist version                                                           ' -ForegroundColor DarkGray
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkGray
+Write-Host
 
 # Checks Wi-Fi / LTE router OS and Configuration version
 # Parameters: IP address, expected OS version, manifest name and manifest version
 
-function Get-MomdemCgi
-{
-    Param ([string] $ipAddress)   
-
-        
-    $uicSelfCheckDigit = 0
-    
-    return $uicSelfCheckDigit
-}
-
-
 # Check if a 1st paramter was given.
 if ($args.Count -ne 4)
 {
-    Write-Host 'Please provide device''s IP Address, expected OS version, manifest name and manifest version!' -ForegroundColor Red
+    Write-Host 'Please provide router''s IP Address, expected OS version, expected Manifest name and version!' -ForegroundColor Red
     exit
 }
 
@@ -41,6 +31,7 @@ if ($ipAddress -notmatch $ipV4)
     exit
 }
 
+$ipAddress = "amit.ddemcak.com"
 
 # HTTP request to get router data
 $Uri = "http://$($ipAddress)/modemcgi"
@@ -61,7 +52,7 @@ try {
 }
 catch {
     
-    Write-Host 'Error while downloading data from the device!' -ForegroundColor Red
+    Write-Host 'Error while downloading data from the router!' -ForegroundColor Red
 
     if ($_.ErrorDetails.Message) {
         Write-Host $_.ErrorDetails.Message  -ForegroundColor Red
@@ -78,37 +69,44 @@ $info = $response.GetElementsByTagName("info")
 $deviceName = $info.hw
 $deviceSerial = $info.sn
 
-Write-Host 'Devie name = ' $deviceName '(S/N:'$deviceSerial')' -ForegroundColor Green
+Write-Host 'Router information =' $deviceName '(S/N:'$deviceSerial')' -ForegroundColor DarkGray
 
 # Get OS version
 $osVersion = $info.ver
 
-Write-Host 'OS = ' $osVersion -ForegroundColor Green
+#Write-Host 'OS = ' $osVersion -ForegroundColor Green
 
 # Get manifest information
 $manifestName = $info.manifest.name
 $manifestVersion = $info.manifest.version
 
-Write-Host 'Manifest name = ' $manifestName -ForegroundColor Green
-Write-Host 'Manifest version = ' $manifestVersion -ForegroundColor Green
+#Write-Host 'Manifest name = ' $manifestName -ForegroundColor Green
+#Write-Host 'Manifest version = ' $manifestVersion -ForegroundColor Green
 
-#"3.70r1" "WS-CD-D" "2.04"
+$padding = 20
 
-Write-Host '--------------------------------------------------------------------' -ForegroundColor DarkCyan
-Write-Host '|           |  OS version  |  Manifest name   |  Manifest version  |' -ForegroundColor DarkCyan
-Write-Host '--------------------------------------------------------------------' -ForegroundColor DarkCyan
-Write-Host '| Expected: |   '$expectedOsVersion'    |     '$expectedManifestName'     |       '$expectedManifestVersion'         |  ' -ForegroundColor DarkCyan
-Write-Host '--------------------------------------------------------------------' -ForegroundColor DarkCyan
-Write-Host '| Current:  |   '$osVersion'    |     '$manifestName'     |       '$manifestVersion'         |  ' -ForegroundColor Green
-Write-Host '--------------------------------------------------------------------' -ForegroundColor DarkCyan
-Write-Host -NoNewline '| Results:  '   -ForegroundColor DarkCyan
-if ($expectedOsVersion -eq $osVersion) { Write-Host -NoNewline '|      OK      ' -ForegroundColor Green }
-else { Write-Host -NoNewline '|     ERR      ' -ForegroundColor Red }
-if ($expectedManifestName -eq $manifestName) { Write-Host -NoNewline '|       OK         ' -ForegroundColor Green }
-else { Write-Host -NoNewline '|       ERR        ' -ForegroundColor Red }
-if ($expectedManifestVersion -eq $manifestVersion) { Write-Host '|        OK          |' -ForegroundColor Green }
-else { Write-Host '|         ERR          |' -ForegroundColor Red }
-Write-Host '--------------------------------------------------------------------' -ForegroundColor DarkCyan
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkCyan
+Write-Host '|           | '$('OS version'.PadRight($padding))' | '$('Manifest name'.PadRight($padding))' | '$('Manifest version'.PadRight($padding))'  |' -ForegroundColor DarkCyan
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkCyan
+Write-Host '| Expected: | '$expectedOsVersion.PadRight($padding)' | '$expectedManifestName.PadRight($padding)' | '$expectedManifestVersion.PadRight($padding)'  |' -ForegroundColor DarkCyan
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkCyan
+Write-Host -NoNewline '| Current:  | ' -ForegroundColor DarkCyan
+
+if ($expectedOsVersion -eq $osVersion) { Write-Host -NoNewLine ''($osVersion + '  [OK]').PadRight($padding) -ForegroundColor Green }
+else { Write-Host -NoNewLine ''($osVersion + '  [ERR]').PadRight($padding) -ForegroundColor Red }
+
+Write-Host -NoNewLine '  | ' -ForegroundColor DarkCyan
+
+if ($expectedManifestName -eq $manifestName) { Write-Host -NoNewLine ''($manifestName + '  [OK]').PadRight($padding) -ForegroundColor Green }
+else { Write-Host -NoNewLine ''($manifestName + '  [ERR]').PadRight($padding) -ForegroundColor Red }
+
+Write-Host -NoNewLine '  | ' -ForegroundColor DarkCyan
+
+if ($expectedManifestVersion -eq $manifestVersion) { Write-Host -NoNewLine ''($manifestVersion + '  [OK]').PadRight($padding) -ForegroundColor Green }
+else { Write-Host -NoNewLine ''($manifestVersion + '  [ERR]').PadRight($padding) -ForegroundColor Red }
+
+Write-Host '   | ' -ForegroundColor DarkCyan
+Write-Host '-----------------------------------------------------------------------------------------' -ForegroundColor DarkCyan
 
 
 
